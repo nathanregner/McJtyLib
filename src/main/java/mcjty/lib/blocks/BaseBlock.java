@@ -1,5 +1,13 @@
 package mcjty.lib.blocks;
 
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import mcjty.lib.api.ITabExpander;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
@@ -22,7 +30,13 @@ import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.tooltips.ITooltipSettings;
-import mcjty.lib.varia.*;
+import mcjty.lib.varia.ComponentFactory;
+import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.OrientationTools;
+import mcjty.lib.varia.RedstoneMode;
+import mcjty.lib.varia.Tools;
+import mcjty.lib.varia.WrenchChecker;
+import mcjty.lib.varia.WrenchUsage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,6 +50,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -50,11 +65,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
 
 public class BaseBlock extends Block implements WailaInfoProvider, TOPInfoProvider, IPartBlock, ITooltipSettings, EntityBlock, ITabExpander {
 
@@ -287,6 +297,14 @@ public class BaseBlock extends Block implements WailaInfoProvider, TOPInfoProvid
         }
     }
 
+    @Override
+    public boolean canConnectRedstone(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @Nullable Direction direction) {
+        var te = level.getBlockEntity(pos);
+        if (te instanceof GenericTileEntity gte) {
+            return gte.getRSMode() != RedstoneMode.REDSTONE_IGNORED;
+        }
+        return super.canConnectRedstone(state, level, pos, direction);
+    }
 
     protected void setOwner(Level world, BlockPos pos, LivingEntity entity) {
         BlockEntity te = world.getBlockEntity(pos);
